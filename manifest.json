@@ -1,0 +1,11 @@
+{
+  "name": "Cierre de caja",
+  "short_name": "Caja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "icons": []
+}
