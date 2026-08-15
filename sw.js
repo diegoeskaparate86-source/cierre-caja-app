@@ -7,5 +7,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Dejamos que la aplicación de Apps Script cargue normalmente.
+  event.respondWith(
+    fetch(event.request)
+  );
 });
