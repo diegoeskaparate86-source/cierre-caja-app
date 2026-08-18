@@ -63,7 +63,7 @@
   </div>
 
   <script>
-    // Bloqueo de zoom manual.
+    // Evita gestos de zoom del navegador dentro de la PWA.
     document.addEventListener('gesturestart', function(e) {
       e.preventDefault();
     }, {passive:false});
@@ -76,6 +76,7 @@
       e.preventDefault();
     }, {passive:false});
 
+    // Evita el doble toque que algunos navegadores interpretan como zoom.
     let ultimoToque = 0;
     document.addEventListener('touchend', function(e) {
       const ahora = Date.now();
@@ -84,65 +85,6 @@
       }
       ultimoToque = ahora;
     }, {passive:false});
-
-    /*
-     * Corrección específica para Fold/pantalla exterior.
-     *
-     * Al arrancar directamente en la pantalla exterior, Android puede
-     * entregar inicialmente un viewport distinto del definitivo. El
-     * iframe queda visualmente en un sitio, pero las coordenadas táctiles
-     * se calculan con las dimensiones iniciales.
-     *
-     * Forzamos varios recalculos al arrancar y después de cada resize.
-     */
-    (function () {
-      const iframe = document.getElementById('cajaApp');
-
-      function recalcularViewport() {
-        if (!iframe) return;
-
-        const ancho = window.visualViewport
-          ? window.visualViewport.width
-          : window.innerWidth;
-
-        const alto = window.visualViewport
-          ? window.visualViewport.height
-          : window.innerHeight;
-
-        document.documentElement.style.width = ancho + 'px';
-        document.documentElement.style.height = alto + 'px';
-        document.body.style.width = ancho + 'px';
-        document.body.style.height = alto + 'px';
-
-        iframe.style.width = ancho + 'px';
-        iframe.style.height = alto + 'px';
-
-        // Forzamos un reflow para que Android/WebView recalcule
-        // correctamente la zona táctil.
-        void iframe.offsetHeight;
-      }
-
-      function recalcularConRetardo() {
-        recalcularViewport();
-        requestAnimationFrame(recalcularViewport);
-        setTimeout(recalcularViewport, 100);
-        setTimeout(recalcularViewport, 300);
-        setTimeout(recalcularViewport, 600);
-        setTimeout(recalcularViewport, 1000);
-      }
-
-      window.addEventListener('load', recalcularConRetardo);
-      window.addEventListener('resize', recalcularConRetardo);
-      window.addEventListener('orientationchange', recalcularConRetardo);
-
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', recalcularConRetardo);
-      }
-
-      // También ejecutamos una vez inmediatamente por si la PWA ya está
-      // visible antes de que se dispare load.
-      recalcularConRetardo();
-    })();
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
