@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
 
   <!-- Zoom manual bloqueado. La escala inicial se mantiene fija. -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.15, maximum-scale=1.15, minimum-scale=1.15, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.15, maximum-scale=1.15, minimum-scale=1.15, user-scalable=no, viewport-fit=cover">
 
   <meta name="theme-color" content="#1a73e8">
   <meta name="mobile-web-app-capable" content="yes">
@@ -34,6 +33,17 @@
       overflow: hidden;
       background: #fff;
       touch-action: manipulation;
+    }
+
+
+    /* Ajuste específico para pantallas estrechas/verticales del Fold.
+       No transforma el iframe: dejamos que el navegador mantenga las
+       coordenadas táctiles en el mismo sistema de referencia. */
+    @media (max-width: 700px) and (orientation: portrait) {
+      html, body, #app, #cajaApp {
+        width: 100%;
+        max-width: 100%;
+      }
     }
 
     #cajaApp {
@@ -85,6 +95,25 @@
       }
       ultimoToque = ahora;
     }, {passive:false});
+
+    // En el Fold, al arrancar directamente en la pantalla exterior,
+    // el viewport puede terminar de establecerse unos instantes después.
+    // Solo provocamos un reflow; no cambiamos la escala ni la geometría.
+    function reflowFold() {
+      void document.body.offsetHeight;
+      void document.getElementById('cajaApp').offsetHeight;
+    }
+
+    window.addEventListener('load', function () {
+      reflowFold();
+      setTimeout(reflowFold, 150);
+      setTimeout(reflowFold, 500);
+      setTimeout(reflowFold, 1000);
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', reflowFold);
+    }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
