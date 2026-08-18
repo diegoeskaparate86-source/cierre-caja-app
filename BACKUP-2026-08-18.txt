@@ -1,0 +1,2 @@
+Copia de seguridad antes de actualizar la aplicación.
+Versión que funciona actualmente en Google Apps Script.
