@@ -1,70 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <meta name="theme-color" content="#1a73e8">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-
-  <title>Cierre de caja</title>
-
-  <link rel="manifest" href="./manifest.json">
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      min-height: 100%;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    #app {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100dvh;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      min-width: 100%;
-      min-height: 100%;
-      border: 0;
-      display: block;
-      background: #fff;
-      touch-action: auto;
-      pointer-events: auto;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Cierre de caja</title>
+<link rel="manifest" href="./manifest.json">
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;min-height:100%;overflow:hidden;background:#fff}
+#app{width:100%;height:100%;min-height:100%;overflow:hidden;background:#fff}
+#cajaApp{display:block;width:100%;height:100%;min-width:0;min-height:0;border:0;margin:0;padding:0;background:#fff;touch-action:manipulation}
+</style>
 </head>
-
 <body>
-  <div id="app">
-    <iframe
-      id="cajaApp"
-      src="https://script.google.com/macros/s/AKfycbzEr3jsfMiqjXdmIhJMf4jsnkpqFwTGD0VhzEFYZBlCInd-xNMJSX75dPujU4KXHfFoRg/exec"
-      title="Cierre de caja"
-      allow="fullscreen; clipboard-read; clipboard-write"
-      scrolling="auto">
-    </iframe>
-  </div>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js', {scope: './'}).catch(function () {});
-      });
-    }
-  </script>
+<div id="app">
+<iframe id="cajaApp" src="https://script.google.com/macros/s/AKfycbzEr3jsfMiqjXdmIhJMf4jsnkpqFwTGD0VhzEFYZBlCInd-xNMJSX75dPujU4KXHfFoRg/exec" title="Cierre de caja" allow="fullscreen; clipboard-read; clipboard-write" scrolling="auto"></iframe>
+</div>
+<script>
+if('serviceWorker' in navigator){
+ window.addEventListener('load',function(){
+  navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});
+ });
+}
+</script>
 </body>
 </html>
