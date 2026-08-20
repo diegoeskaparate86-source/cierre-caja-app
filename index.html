@@ -1,514 +1,67 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<base target="_top">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cierre de caja</title>
-<style>
-*{box-sizing:border-box}
-body{font-family:Arial,sans-serif;margin:0;background:#f4f6f8;color:#222}
-.wrap{max-width:650px;margin:auto;padding:16px}
-h1{font-size:24px;margin:6px 0 18px}
-h2{font-size:18px;margin:20px 0 10px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 5px #0001}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{font-size:13px;font-weight:bold;display:block;margin-bottom:5px}
-input,select{width:100%;padding:12px;border:1px solid #ccd2d8;border-radius:9px;font-size:17px;background:#fff}
-input[readonly]{background:#eef1f4;font-weight:bold}
-.help,.small{font-size:12px;color:#666}
-.buttons{display:grid;gap:10px;margin-top:8px}
-button{width:100%;padding:16px;border:0;border-radius:12px;color:#fff;font-size:18px;font-weight:bold}
-#actualizar{background:#5f6368}#guardar{background:#1a73e8}
-button:disabled{opacity:.6}
-#msg{margin-top:12px;padding:12px;border-radius:10px;display:none;background:#e8f0fe}
-.home-buttons{display:grid;gap:14px;margin-top:24px}
-.home-btn{padding:18px;border:0;border-radius:14px;color:#fff;font-size:18px;font-weight:bold;text-align:left;box-shadow:0 2px 6px #0002}
-.home-btn small{display:block;font-size:12px;font-weight:normal;margin-top:5px;opacity:.9}
-.btn-gastos{background:#2e7d32}.btn-cierre{background:#1565c0}.btn-gestoria{background:#ef6c00}.btn-precios{background:#6a1b9a}
-.back{background:#5f6368;margin-bottom:14px}
- .sub-btn{background:#2e7d32;margin-bottom:10px}
-.movement-row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;padding:10px 0;border-bottom:1px solid #e5e7eb}
-.movement-row:last-child{border-bottom:0}
-.movement-row label{margin-top:2px}
-.screen{display:none}.screen.active{display:block}
-@media(max-width:430px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a73e8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.json">
+  <title>Cierre de caja</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      min-height: 100%;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      border: 0;
+      display: block;
+      background: #fff;
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrap">
-
-<!-- INICIO -->
-<div id="home" class="screen active">
-  <h1>🧾 Cierre de caja</h1>
-  <div class="home-buttons">
-    <button class="home-btn btn-gastos" onclick="showScreen('gastosIngresos')">
-      💸 Añadir gastos / ingresos
-      <small>Registrar movimientos del día</small>
-    </button>
-    <button class="home-btn btn-cierre" onclick="showScreen('cierre')">
-      🧾 Realizar cierre de caja
-      <small>Contar caja y realizar el cierre</small>
-    </button>
-    <button class="home-btn btn-gestoria" onclick="showScreen('gestoria')">
-      📊 Datos de gestoría
-      <small>Consultar y gestionar datos trimestrales</small>
-    </button>
-    <button class="home-btn btn-precios" onclick="showScreen('precios')">
-      📋 Lista de precios
-      <small>La prepararemos más adelante</small>
-    </button>
-  </div>
-</div>
-
-<!-- GASTOS / INGRESOS -->
-<div id="gastosIngresos" class="screen">
-  <button class="home-btn back" onclick="showScreen('home')">← Volver al inicio</button>
-  <h1>💸 Gastos / ingresos</h1>
-
-  <div class="home-buttons">
-    <button class="home-btn btn-gastos" onclick="showScreen('gastos')">
-      💸 Gastos
-      <small>Registrar gastos y distribuidores</small>
-    </button>
-    <button class="home-btn btn-cierre" onclick="showScreen('ingresos')">
-      💰 Ingresos
-      <small>Registrar recaudaciones y otros ingresos</small>
-    </button>
-  </div>
-</div>
-
-<!-- GASTOS -->
-<div id="gastos" class="screen">
-  <button class="home-btn back" onclick="showScreen('gastosIngresos')">← Volver</button>
-  <div class="card">
-    <h2>💸 Gastos</h2>
-    <p class="help">Introduce un importe y selecciona el distribuidor. Al guardar aparecerá automáticamente otra línea.</p>
-    <div id="gastosDinamicos"></div>
-    <button class="home-btn sub-btn" onclick="guardarMovimiento('gasto')">💾 Guardar gasto</button>
-  </div>
-</div>
-
-<!-- INGRESOS -->
-<div id="ingresos" class="screen">
-  <button class="home-btn back" onclick="showScreen('gastosIngresos')">← Volver</button>
-  <div class="card">
-    <h2>💰 Ingresos</h2>
-    <p class="help">Introduce un importe y selecciona el concepto. Al guardar aparecerá automáticamente otra línea.</p>
-    <div id="ingresosDinamicos"></div>
-    <button class="home-btn sub-btn" onclick="guardarMovimiento('ingreso')">💾 Guardar ingreso</button>
-  </div>
-</div>
-
-<!-- CIERRE -->
-<div id="cierre" class="screen">
-  <button class="home-btn back" onclick="showScreen('home')">← Volver al inicio</button>
-  <h1>🧾 Realizar cierre de caja</h1>
-
-  <div class="card">
-    <h2>Cambio del cajón</h2>
-    <div class="grid" id="cajon"></div>
+  <div id="app">
+    <iframe
+      id="cajaApp"
+      src="https://script.google.com/macros/s/AKfycbwtcK2Wz9jHmyxymjTJhQdDicBGVsjm1lE09lUl0Rwc41bwYRueoPuA9wfsKx1y-KJSJA/exec"
+      title="Cierre de caja"
+      allow="fullscreen; clipboard-read; clipboard-write"
+      scrolling="auto">
+    </iframe>
   </div>
 
-  <div class="card">
-    <h2>Cambio de la caja</h2>
-    <div class="grid" id="caja"></div>
-  </div>
-
-  <div class="card">
-    <h2>Dianas</h2>
-    <div class="help">Sustituye el valor anterior por el valor actual.</div>
-    <div class="grid">
-      <div><label>Diana 1</label><input id="diana1" type="number" step="0.01"></div>
-      <div><label>Diana 2</label><input id="diana2" type="number" step="0.01"></div>
-      <div><label>Diana 3</label><input id="diana3" type="number" step="0.01"></div>
-      <div><label>Diana 4</label><input id="diana4" type="number" step="0.01"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Datos del cierre</h2>
-    <div class="grid">
-      <div><label>Metálico</label><input id="metalico" type="text" readonly></div>
-      <div><label>SumUP</label><input id="sumup" type="number" step="0.01"></div>
-
-      <div><label>Santander</label><input id="santander" type="number" step="0.01"></div>
-      <div><label>Caixa</label><input id="caixa" type="number" step="0.01"></div>
-
-      <div><label>Ticket metálico</label><input id="ticketMetalico" type="number" step="0.01"></div>
-      <div><label>Ticket Tarjetas</label><input id="ticketTarjetas" type="number" step="0.01"></div>
-
-      <div><label>Cuadrar Metálico</label><input id="cuadraCaja" type="text" readonly></div>
-      <div><label>Cuadrar Tarjetas</label><input id="cuadraTarjeta" type="text" readonly></div>
-
-      <div><label>Total caja</label><input id="totalCaja" type="text" readonly></div>
-      <div><label>Gastos / Ingresos</label><input id="balanceGastosIngresos" type="text" readonly></div>
-    </div>
-  </div>
-
-  <div class="buttons">
-    <button id="actualizar" onclick="actualizar()">ACTUALIZAR VALORES</button>
-    <button id="guardar" onclick="guardar()">CERRAR CAJA</button>
-  </div>
-  <div id="msg"></div>
-</div>
-
-<!-- GESTORÍA -->
-<div id="gestoria" class="screen">
-  <button class="home-btn back" onclick="showScreen('home')">← Volver al inicio</button>
-  <div class="card">
-    <h2>📊 Datos de gestoría</h2>
-    <p class="help">Aquí añadiremos Caja 3 meses, Hoja 3 - Ajuste, Hoja 2 - Ajustada y Configuración.</p>
-  </div>
-</div>
-
-<!-- PRECIOS -->
-<div id="precios" class="screen">
-  <button class="home-btn back" onclick="showScreen('home')">← Volver al inicio</button>
-  <div class="card">
-    <h2>📋 Lista de precios</h2>
-    <p class="help">La prepararemos más adelante.</p>
-  </div>
-</div>
-
-</div>
-<script>
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(function(el){
-    el.classList.remove('active');
-  });
-  const screen=document.getElementById(id);
-  if(screen) screen.classList.add('active');
-  window.scrollTo(0,0);
-
-  if(id==='gastos' || id==='ingresos') cargarMovimientosDelDia(id==='gastos'?'gasto':'ingreso');
-}
-
-function campoNumero(label,id){
-  return '<div><label>'+String(label)+'</label><input id="'+id+'" type="number" step="0.01"></div>';
-}
-
-function campoGasto(r,lista){
-  const opts=['<option value="" selected>Seleccionar distribuidor</option>']
-    .concat(lista.map(function(x){
-      return '<option value="'+String(x).replace(/"/g,'&quot;')+'">'+String(x)+'</option>';
-    })).join('');
-  return '<div><label>Importe gasto '+(r-5)+'</label><input id="gastoImporte'+r+'" type="number" step="0.01"></div>'+
-         '<div><label>Distribuidor '+(r-5)+'</label><select id="gastoDistribuidor'+r+'">'+opts+'</select></div>';
-}
-
-function mostrarCalculados(c){
-  document.getElementById('metalico').value=c.metalico||'';
-  document.getElementById('totalCaja').value=c.totalCaja||'';
-  document.getElementById('cuadraCaja').value=c.cuadraCaja||'';
-  document.getElementById('cuadraTarjeta').value=c.cuadraTarjeta||'';
-
-  // Los tickets son datos introducidos por el usuario.
-  // Solo los rellenamos si el servidor devuelve un valor real;
-  // nunca los sustituimos por vacío.
-  if (c.ticketMetalico !== undefined && c.ticketMetalico !== null && String(c.ticketMetalico).trim() !== '') {
-    document.getElementById('ticketMetalico').value = c.ticketMetalico;
-  }
-  if (c.ticketTarjetas !== undefined && c.ticketTarjetas !== null && String(c.ticketTarjetas).trim() !== '') {
-    document.getElementById('ticketTarjetas').value = c.ticketTarjetas;
-  }
-}
-
-function actualizarBalanceGastosIngresos(){
-  google.script.run.withSuccessHandler(function(r){
-    const el=document.getElementById('balanceGastosIngresos');
-    if(el){
-      el.value=(r.balance||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js', {scope: './'}).catch(function () {});
+      });
     }
-  }).obtenerBalanceMovimientos();
-}
-
-
-let distribuidoresApp = [];
-let conceptosIngresosApp = ['Cupones','Dinero prestado','Devolución','Otros ingresos'];
-let gastosRows = 0;
-let ingresosRows = 0;
-
-function escapeHtml(v){
-  return String(v)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
-
-function selectOptions(lista){
-  return '<option value="" selected>Seleccionar</option>' +
-    lista.map(function(x){
-      return '<option value="'+escapeHtml(x)+'">'+escapeHtml(x)+'</option>';
-    }).join('');
-}
-
-function añadirFilaMovimiento(tipo, datos){
-  const cont = document.getElementById(tipo === 'gasto' ? 'gastosDinamicos' : 'ingresosDinamicos');
-  const idx = tipo === 'gasto' ? ++gastosRows : ++ingresosRows;
-  const fila = document.createElement('div');
-  fila.className='movement-row';
-
-  const importe = datos && datos.importe != null ? datos.importe : '';
-  const concepto = datos && datos.concepto ? datos.concepto : '';
-
-  const lista = tipo === 'gasto' ? distribuidoresApp : conceptosIngresosApp;
-  const opciones = '<option value="" selected>Seleccionar '+(tipo==='gasto'?'distribuidor':'concepto')+'</option>' +
-    lista.map(function(x){return '<option value="'+escapeHtml(x)+'">'+escapeHtml(x)+'</option>';}).join('') +
-    '<option value="__NUEVO__">➕ Nuevo '+(tipo==='gasto'?'distribuidor':'concepto')+'</option>';
-
-  fila.innerHTML =
-    '<div><label>Importe</label><input id="'+tipo+'Importe'+idx+'" type="number" step="0.01" value="'+escapeHtml(importe)+'"></div>' +
-    '<div><label>'+(tipo==='gasto'?'Distribuidor':'Concepto')+'</label>' +
-    '<select id="'+tipo+'Concepto'+idx+'">'+opciones+'</select>' +
-    '<input id="'+tipo+'Nuevo'+idx+'" type="text" placeholder="Escribe uno nuevo" style="display:none;margin-top:7px"></div>';
-
-  cont.appendChild(fila);
-
-  const sel=document.getElementById(tipo+'Concepto'+idx);
-  const nuevo=document.getElementById(tipo+'Nuevo'+idx);
-  sel.addEventListener('change',function(){
-    nuevo.style.display=this.value==='__NUEVO__'?'block':'none';
-    if(this.value!=='__NUEVO__') nuevo.value='';
-  });
-
-  const valorInicial = tipo==='gasto' && datos && datos.distribuidor ? datos.distribuidor : concepto;
-  if(valorInicial){
-    if((lista||[]).some(x=>String(x).toLowerCase()===String(valorInicial).toLowerCase())){
-      sel.value=valorInicial;
-    }else{
-      sel.value='__NUEVO__';
-      nuevo.style.display='block';
-      nuevo.value=valorInicial;
-    }
-  }
-}
-
-function iniciarFilasDinamicas(){
-  document.getElementById('gastosDinamicos').innerHTML='';
-  document.getElementById('ingresosDinamicos').innerHTML='';
-  gastosRows=0;
-  ingresosRows=0;
-  añadirFilaMovimiento('gasto');
-  añadirFilaMovimiento('ingreso');
-}
-
-function recopilarMovimientos(tipo){
-  /*
-   * MUY IMPORTANTE:
-   * Las filas que ya vienen de la hoja Gastos son SOLO históricas.
-   * No se vuelven a guardar.
-   * Solo se recoge la última fila vacía, que es la nueva fila que
-   * el usuario acaba de rellenar.
-   */
-  const total = tipo === 'gasto' ? gastosRows : ingresosRows;
-  if(total < 1) return [];
-
-  const i = total;
-  const importeEl = document.getElementById(tipo+'Importe'+i);
-  const conceptoEl = document.getElementById(tipo+'Concepto'+i);
-  const nuevoEl = document.getElementById(tipo+'Nuevo'+i);
-
-  if(!importeEl || !conceptoEl) return [];
-
-  const importe = parseFloat(importeEl.value);
-  let valor = conceptoEl.value.trim();
-
-  if(valor === '__NUEVO__'){
-    valor = (nuevoEl ? nuevoEl.value : '').trim();
-  }
-
-  if(isNaN(importe) || importe <= 0 || !valor) return [];
-
-  return [tipo === 'gasto'
-    ? {importe:importe, distribuidor:valor, concepto:''}
-    : {importe:importe, concepto:valor}
-  ];
-}
-
-function guardarMovimiento(tipo){
-  const movimientos=recopilarMovimientos(tipo);
-  if(!movimientos.length){
-    mostrarMensaje('Introduce un importe y selecciona o escribe un concepto/distribuidor.');
-    return;
-  }
-
-  google.script.run.withSuccessHandler(function(r){
-    distribuidoresApp=r.distribuidores||distribuidoresApp;
-    conceptosIngresosApp=r.conceptosIngresos||conceptosIngresosApp;
-
-    if(tipo==='gasto'){
-      document.getElementById('gastosDinamicos').innerHTML='';
-      gastosRows=0;
-    }else{
-      document.getElementById('ingresosDinamicos').innerHTML='';
-      ingresosRows=0;
-    }
-
-    (r.movimientos && r.movimientos[tipo==='gasto'?'gastos':'ingresos'] || []).forEach(function(m){
-      añadirFilaMovimiento(tipo,m);
-    });
-    añadirFilaMovimiento(tipo);
-    actualizarBalanceGastosIngresos();
-    mostrarMensaje(r.mensaje);
-  }).withFailureHandler(function(e){
-    mostrarMensaje('No se ha podido guardar: '+e.message);
-  }).guardarMovimientosDesdeApp(tipo,movimientos);
-}
-
-function cargarMovimientosDelDia(tipo){
-  google.script.run.withSuccessHandler(function(r){
-    distribuidoresApp=r.distribuidores||distribuidoresApp;
-    conceptosIngresosApp=r.conceptosIngresos||conceptosIngresosApp;
-    const cont=document.getElementById(tipo==='gasto'?'gastosDinamicos':'ingresosDinamicos');
-    cont.innerHTML='';
-    if(tipo==='gasto') gastosRows=0; else ingresosRows=0;
-
-    const arr=tipo==='gasto'?(r.gastos||[]):(r.ingresos||[]);
-    arr.forEach(function(m){añadirFilaMovimiento(tipo,m);});
-    añadirFilaMovimiento(tipo);
-    actualizarBalanceGastosIngresos();
-  }).withFailureHandler(function(e){
-    const cont=document.getElementById(tipo==='gasto'?'gastosDinamicos':'ingresosDinamicos');
-    cont.innerHTML='';
-    if(tipo==='gasto') gastosRows=0; else ingresosRows=0;
-    añadirFilaMovimiento(tipo);
-    mostrarMensaje('No se pudieron cargar los movimientos: '+e.message);
-  }).obtenerMovimientosDelDia();
-}
-
-function cargarDatosIniciales(){
-  google.script.run.withSuccessHandler(function(data){
-
-    const ids=['diana1','diana2','diana3','diana4'];
-    const vals=[data.dianas.diana1,data.dianas.diana2,data.dianas.diana3,data.dianas.diana4];
-    ids.forEach(function(id,i){
-      document.getElementById(id).value=vals[i]??'';
-    });
-
-    const cajon=document.getElementById('cajon');
-    cajon.innerHTML='';
-    for(let r=7;r<=17;r++){
-      cajon.insertAdjacentHTML('beforeend',
-        campoNumero(data.cambioCajon['A'+r]||('Cambio '+r),'cajon'+r));
-      document.getElementById('cajon'+r).value=data.cambioCajon['B'+r]??'';
-    }
-
-    const caja=document.getElementById('caja');
-    caja.innerHTML='';
-    for(let r=20;r<=29;r++){
-      caja.insertAdjacentHTML('beforeend',
-        campoNumero(data.cambioCaja['A'+r]||('Cambio '+r),'caja'+r));
-      document.getElementById('caja'+r).value=data.cambioCaja['B'+r]??'';
-    }
-
-    distribuidoresApp = data.distribuidores || [];
-    conceptosIngresosApp = data.conceptosIngresos || conceptosIngresosApp;
-    iniciarFilasDinamicas();
-
-    document.getElementById('santander').value=data.cierre.santander??'';
-    document.getElementById('caixa').value=data.cierre.caixa??'';
-    document.getElementById('sumup').value=data.cierre.sumup??'';
-
-    // Los dos tickets se cargan desde los valores calculados de la hoja.
-    // Así aparecen también al abrir/reabrir la aplicación.
-    document.getElementById('ticketMetalico').value=data.calculados.ticketMetalico??'';
-    document.getElementById('ticketTarjetas').value=data.calculados.ticketTarjetas??'';
-
-    mostrarCalculados(data.calculados);
-    actualizarBalanceGastosIngresos();
-
-  }).withFailureHandler(function(e){
-    const msg=document.getElementById('msg');
-    if(msg){msg.textContent='No se pudieron cargar los datos: '+e.message;msg.style.display='block';}
-  }).obtenerDatosInicialesApp();
-}
-
-function val(id){
-  const el=document.getElementById(id);
-  return el?el.value:'';
-}
-
-function datos(){
-  const d={diana1:val('diana1'),diana2:val('diana2'),diana3:val('diana3'),diana4:val('diana4'),
-    santander:val('santander'),caixa:val('caixa'),sumup:val('sumup'),
-    ticketMetalico:val('ticketMetalico'),ticketTarjetas:val('ticketTarjetas')};
-  for(let r=7;r<=17;r++) d['cajon'+r]=val('cajon'+r);
-  for(let r=20;r<=29;r++) d['caja'+r]=val('caja'+r);
-  return d;
-}
-
-function mostrarMensaje(t){
-  const m=document.getElementById('msg');
-  if(!m) return;
-  m.textContent=t;
-  m.style.display='block';
-}
-
-function actualizar(){
-  const b=document.getElementById('actualizar');
-  const c=document.getElementById('guardar');
-
-  // Guardamos los valores introducidos antes de enviar la actualización.
-  // Así los tickets no desaparecen visualmente cuando vuelve la respuesta.
-  const datosActuales = datos();
-
-  b.disabled=true;
-  c.disabled=true;
-  b.textContent='ACTUALIZANDO...';
-
-  google.script.run.withSuccessHandler(function(r){
-    mostrarCalculados(r.calculados);
-
-    // Actualizar valores conserva visibles los tickets introducidos.
-    document.getElementById('ticketMetalico').value = datosActuales.ticketMetalico;
-    document.getElementById('ticketTarjetas').value = datosActuales.ticketTarjetas;
-
-    actualizarBalanceGastosIngresos();
-    mostrarMensaje(r.mensaje);
-
-    b.disabled=false;
-    c.disabled=false;
-    b.textContent='ACTUALIZAR VALORES';
-
-  }).withFailureHandler(function(e){
-    mostrarMensaje('No se ha podido actualizar: '+e.message);
-    b.disabled=false;
-    c.disabled=false;
-    b.textContent='ACTUALIZAR VALORES';
-  }).actualizarValoresDesdeApp(datosActuales);
-}
-
-function guardar(){
-  const b=document.getElementById('guardar');
-  const a=document.getElementById('actualizar');
-  b.disabled=true;a.disabled=true;b.textContent='CERRANDO CAJA...';
-
-  google.script.run.withSuccessHandler(function(r){
-    if(r.calculados) mostrarCalculados(r.calculados);
-
-    // Después de cerrar caja, limpiar en pantalla
-    // los campos que ya se han borrado en la hoja.
-    document.getElementById('ticketMetalico').value = '';
-    document.getElementById('santander').value = '';
-    document.getElementById('caixa').value = '';
-    document.getElementById('sumup').value = '';
-    document.getElementById('ticketTarjetas').value = '';
-
-    actualizarBalanceGastosIngresos();
-
-    iniciarFilasDinamicas();
-    actualizarBalanceGastosIngresos();
-
-    mostrarMensaje(r.mensaje);
-    b.disabled=false;a.disabled=false;b.textContent='CERRAR CAJA';
-  }).withFailureHandler(function(e){
-    mostrarMensaje('No se ha podido cerrar la caja: '+e.message);
-    b.disabled=false;a.disabled=false;b.textContent='CERRAR CAJA';
-  }).guardarCierreDesdeApp(datos());
-}
-
-cargarDatosIniciales();
-</script>
+  </script>
+</body>
+</html>
